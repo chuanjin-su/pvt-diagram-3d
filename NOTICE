@@ -1,0 +1,10 @@
+pvt-diagram-3d — Phase Space
+Copyright © 2026 Chuanjin Su.
+https://github.com/chuanjin-su/pvt-diagram-3d
+
+Third-party software
+--------------------
+Three.js 0.160.1 and OrbitControls are included in vendor/.
+Copyright © 2010–2023 Three.js authors.
+These third-party components are distributed under the MIT license;
+see vendor/THREE-LICENSE.txt for the original notice and license terms.

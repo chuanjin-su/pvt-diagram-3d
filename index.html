@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4f6f8">
+  <meta name="author" content="Chuanjin Su">
+  <meta name="description" content="Interactive 3D pressure–volume–temperature phase surfaces with isotherm and isobar cross-sections.">
+  <link rel="icon" href="data:,">
+  <title>Phase Space — an interactive p–v–T schematic</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js"}}</script>
+</head>
+<body>
+  <header>
+    <div><div class="eyebrow"><span class="brand-dot"></span> THERMODYNAMICS / INTERACTIVE SCHEMATIC</div><h1>Phase space<span>.</span></h1><p>One substance. Three coordinates. Every phase.</p></div>
+    <div class="header-note"><span>p</span> pressure <span>v</span> specific volume <span>T</span> temperature</div>
+  </header>
+  <main>
+    <section class="viewport" aria-label="Interactive three-dimensional phase diagram">
+      <div class="view-top"><span class="pill">3D EQUILIBRIUM SURFACE</span><div class="view-actions"><button id="home" title="Reset camera">Reset view</button><button id="pv" title="Look along the temperature axis">p–v view</button><button id="pt" title="Look along the volume axis">p–T view</button><button id="tv" title="Look along the pressure axis">T–v view</button><button id="fullscreen">Full screen</button></div></div>
+      <div id="scene" role="img" aria-label="Rotatable pressure, specific volume, and temperature surface. Drag to rotate; scroll to zoom."></div>
+      <div id="error" hidden>3D rendering could not start. Use a browser with WebGL enabled and serve this folder over HTTP. See README.md.</div>
+      <div id="phase-legend" class="legend" aria-label="Phase colors"><span><i style="--color:#6998d2"></i>Solid</span><span><i style="--color:#4cae9b"></i>Liquid</span><span><i style="--color:#e6a16d"></i>Vapor</span><span><i style="--color:#e8c45b"></i>Liquid + vapor</span><span><i style="--color:#aa93ca"></i>Solid + liquid</span><span><i style="--color:#a9bdc3"></i>Solid + vapor</span></div>
+      <div class="view-bottom"><span>Drag to orbit <b>·</b> Scroll to zoom <b>·</b> Right-drag to pan</span><span id="behavior-caption">Solid occupies less volume than liquid</span></div>
+    </section>
+    <aside>
+      <section class="control-card"><div class="section-title"><span class="step">01</span><h2>Choose a substance</h2></div><div class="segmented"><button id="normal" class="selected" aria-pressed="true">Most substances</button><button id="water" aria-pressed="false">Water-like</button></div><p id="behavior-description">Expands on melting: the solid has a <strong>smaller</strong> specific volume than the liquid.</p><div class="mini-note" id="slope-note">Positive solid–liquid slope in p–T space.</div></section>
+      <section class="control-card slice-card">
+        <div class="section-title"><span class="step">02</span><h2>Explore a cross-section</h2></div>
+        <div class="segmented slice-modes" role="group" aria-label="Cross-section type"><button id="isotherm" class="selected" aria-pressed="true">Isotherm · constant T</button><button id="isobar" aria-pressed="false">Isobar · constant p</button></div>
+        <div id="temperature-controls">
+          <div class="slice-heading"><label for="temperature">Temperature</label><output id="temperature-label">Between Tₜᵣ and T꜀</output></div>
+          <input id="temperature" type="range" min="0.06" max="1.03" value="0.48" step="0.002" aria-label="Schematic temperature">
+          <div class="range-ticks"><span>Cold</span><button data-temp="0.25">Tₜᵣ</button><button data-temp="0.76">T꜀</button><span>Hot</span></div>
+        </div>
+        <div id="pressure-controls" hidden>
+          <div class="slice-heading"><label for="pressure">Pressure</label><output id="pressure-label">Between pₜᵣ and p꜀</output></div>
+          <input id="pressure" type="range" min="0.035" max="1.12" value="0.42" step="0.001" aria-label="Schematic pressure">
+          <div class="range-ticks"><span>Low</span><button data-pressure="0.18">pₜᵣ</button><button data-pressure="0.65">p꜀</button><span>High</span></div>
+        </div>
+        <svg id="slice-chart" viewBox="0 0 280 165" role="img" aria-label="Pressure–specific volume cross-section at the selected temperature"></svg>
+        <p id="slice-description" class="slice-description"></p>
+        <label class="check"><input id="show-slice" type="checkbox" checked> Show slice on the 3D surface</label>
+      </section>
+      <section class="control-card"><div class="section-title"><span class="step">03</span><h2>Read the boundaries</h2></div><div id="boundary-key" class="boundary-key"><div><i class="line" style="--color:#a62e99"></i><span>Saturated liquid</span></div><div><i class="line" style="--color:#dc547b"></i><span>Saturated vapor</span></div><div><i class="line" style="--color:#228b68"></i><span>Triple line</span></div><div><i class="point"></i><span>Critical point</span></div></div><label class="check"><input id="show-all-labels" type="checkbox" checked> All diagram labels</label><label class="check"><input id="show-labels" type="checkbox" checked> Phase &amp; boundary labels</label><label class="check"><input id="show-grid" type="checkbox" checked> Surface guide lines</label></section>
+    </aside>
+  </main>
+  <footer class="site-footer"><span>© 2026 Chuanjin Su</span><a href="https://github.com/chuanjin-su/pvt-diagram-3d" target="_blank" rel="noopener noreferrer">View on GitHub ↗</a></footer>
+  <script>
+    if (location.protocol === 'file:') {
+      const warning = document.getElementById('error');
+      warning.hidden = false;
+      warning.textContent = 'Open this demo through a local server: run python3 -m http.server 8000 from the project root, then visit http://localhost:8000. See README.md.';
+    }
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
