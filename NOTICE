@@ -8,3 +8,6 @@ Three.js 0.160.1 and OrbitControls are included in vendor/.
 Copyright © 2010–2023 Three.js authors.
 These third-party components are distributed under the MIT license;
 see vendor/THREE-LICENSE.txt for the original notice and license terms.
+
+Computer Modern Sans fonts are included in vendor/fonts/.
+See vendor/fonts/Computer-Modern-Sans-OFL.txt for copyright and license terms.

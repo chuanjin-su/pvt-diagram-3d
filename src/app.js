@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { OrbitControls } from './vendor/OrbitControls.js';
+import { OrbitControls } from '../vendor/OrbitControls.js';
 import { patches, COLORS, TRIPLE_T, TRIPLE_P, CRITICAL_T, CRITICAL_P, CRITICAL_V,
   MAX_P, MAX_T, pressureY, point, solidV, liquidV, vaporV, fluidV, saturationP, coexistenceT,
   saturatedLiquidV, saturatedVaporV, meltingT, tripleVolumeRange, temperatureZ,
@@ -143,11 +143,14 @@ function buildAxes() {
 }
 function buildAxisLabels() {
   clear(axisLabels);
-  if (currentView !== 'pt') label('Specific volume, v →', [0.4, -0.35, 3.18], axisLabels, { size: 0.32, background: false });
+  if (currentView !== 'pt') label('Specific volume, v', [0.15, -0.42, 2.98], axisLabels, { size: 0.32, background: false });
   if (currentView !== 'tv') label('Pressure, p', [-3.05, 5.75, 2.6], axisLabels, { size: 0.33, background: false });
-  if (currentView !== 'pv') {
-    const position = currentView === 'pt' ? [-3.45, -0.35, -0.1] : [-3.55, -0.25, -1.1];
-    label(currentView === 'tv' ? 'Temperature, T ↑' : 'Temperature, T →', position, axisLabels, { size: 0.32, background: false });
+  if (currentView === 'home') {
+    label('Temperature, T', [-3.15, 0.15, 1.95], axisLabels, { size: 0.32, background: false });
+  } else if (currentView === 'pt') {
+    label('Temperature, T', [-3, -0.44, -0.3], axisLabels, { size: 0.32, background: false });
+  } else if (currentView === 'tv') {
+    label('Temperature, T ↑', [-2.45, 0, -3.52], axisLabels, { size: 0.32, background: false });
   }
 }
 function updateLabelVisibility() {
@@ -239,14 +242,14 @@ function updateSlice() {
   const sx = x => 33 + (x + 3) / 6 * 229;
   const sy = y => 131 - y / (isobar ? MAX_T : MAX_P) * 116;
   const ordinate = p => isobar ? (2.6 - p.z) / 5 : p.y / 4.5;
-  let svg = '<rect x="0" y="0" width="280" height="165" rx="8" fill="#f7f9fa"/><path d="M33 14V131H263" fill="none" stroke="#a9b9c2" stroke-width="1"/>';
-  for (const level of (isobar ? [TRIPLE_T, CRITICAL_T] : [TRIPLE_P, CRITICAL_P])) svg += `<path d="M33 ${sy(level)}H262" stroke="#dce4e9" stroke-dasharray="3 4"/>`;
+  let svg = '<path class="chart-axes" d="M33 14V131H263" fill="none"/>';
+  for (const level of (isobar ? [TRIPLE_T, CRITICAL_T] : [TRIPLE_P, CRITICAL_P])) svg += `<path class="chart-guide" d="M33 ${sy(level)}H262" stroke-dasharray="3 4"/>`;
   const paths = {};
   for (const s of segments) {
     paths[s.name] = (paths[s.name] || '') + `M${sx(s.a.x).toFixed(2)},${sy(ordinate(s.a)).toFixed(2)}L${sx(s.b.x).toFixed(2)},${sy(ordinate(s.b)).toFixed(2)}`;
   }
   for (const [name, path] of Object.entries(paths)) svg += `<path d="${path}" fill="none" stroke="${COLORS[name]}" stroke-width="3" stroke-linecap="round"/>`;
-  svg += `<g id="chart-labels" fill="#738b98" font-family="sans-serif" font-size="9"><text x="12" y="22" font-style="italic">${isobar ? 'T' : 'p'}</text><text x="250" y="148" font-style="italic">v →</text><text x="34" y="155">Constant ${isobar ? 'p' : 'T'}</text></g>`;
+  svg += `<g id="chart-labels" font-size="11"><text x="12" y="22" font-style="italic">${isobar ? 'T' : 'p'}</text><text x="148" y="148" text-anchor="middle" font-style="italic">v</text><text x="34" y="155">Constant ${isobar ? 'p' : 'T'}</text></g>`;
   $('slice-chart').innerHTML = svg;
   $('slice-chart').setAttribute('aria-label', isobar ? 'Temperature–specific volume cross-section at the selected pressure' : 'Pressure–specific volume cross-section at the selected temperature');
   updateLabelVisibility();
@@ -317,8 +320,12 @@ $('fullscreen').onclick = async () => {
 document.addEventListener('fullscreenchange', () => { $('fullscreen').textContent = document.fullscreenElement ? 'Exit full screen' : 'Full screen'; });
 new ResizeObserver(() => {
   const { width, height } = container.getBoundingClientRect();
-  const halfHeight = width < 500 ? 5.0 : 4.2;
-  camera.left = -halfHeight * width / height; camera.right = halfHeight * width / height;
+  if (width === 0 || height === 0) return;
+  const aspect = width / height;
+  // Keep the axis labels within the frame when the viewport is tall and narrow.
+  const halfHeight = Math.max(width < 500 ? 5.0 : 4.2, 4.7 / aspect);
+  const halfWidth = halfHeight * aspect;
+  camera.left = -halfWidth; camera.right = halfWidth;
   camera.top = halfHeight; camera.bottom = -halfHeight;
   camera.updateProjectionMatrix(); renderer.setSize(width, height);
 }).observe(container);

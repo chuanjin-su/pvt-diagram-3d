@@ -3,8 +3,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import { readFile } from 'node:fs/promises';
-import * as THREE from './vendor/three.module.js';
-import * as model from './model.mjs';
+import * as THREE from '../vendor/three.module.js';
+import * as model from '../src/model.mjs';
 
 async function loadApp() {
   const ctx2d = { measureText: text => ({ width: text.length * 18 }), beginPath() {}, roundRect() {}, fill() {}, fillText() {} };
@@ -39,8 +39,8 @@ async function loadApp() {
   function synthetic(exports) {
     return new vm.SyntheticModule(Object.keys(exports), function () { for (const [k, v] of Object.entries(exports)) this.setExport(k, v); }, { context });
   }
-  const dependencies = { three: synthetic({ ...THREE, WebGLRenderer: Renderer, OrthographicCamera: Camera }), './model.mjs': synthetic(model), './vendor/OrbitControls.js': synthetic({ OrbitControls: Controls }) };
-  const app = new vm.SourceTextModule(await readFile(new URL('./app.js', import.meta.url), 'utf8'), { context });
+  const dependencies = { three: synthetic({ ...THREE, WebGLRenderer: Renderer, OrthographicCamera: Camera }), './model.mjs': synthetic(model), '../vendor/OrbitControls.js': synthetic({ OrbitControls: Controls }) };
+  const app = new vm.SourceTextModule(await readFile(new URL('../src/app.js', import.meta.url), 'utf8'), { context });
   await app.link(id => dependencies[id]); await app.evaluate();
   return { element, window, temps, pressures, camera };
 }
@@ -186,18 +186,18 @@ test('isobars use the constant-pressure plane and T–v plateau in both freezing
 });
 
 test('page contains the new controls without presentation disclaimers', async () => {
-  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.ok(html.includes('id="tv"'));
   assert.ok(html.includes('id="show-all-labels"'));
   for (const text of ['not property data', 'not to scale', 'not an equation of state', 'full phase diagram']) assert.ok(!html.includes(text), text);
-  const app = await readFile(new URL('./app.js', import.meta.url), 'utf8');
+  const app = await readFile(new URL('../src/app.js', import.meta.url), 'utf8');
   assert.ok(!app.includes('compressed volume scale'));
 });
 
 test('standalone project has author attribution, repository link, and root-relative commands', async () => {
-  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
-  const readme = await readFile(new URL('./README.md', import.meta.url), 'utf8');
-  const pkg = JSON.parse(await readFile(new URL('./package.json', import.meta.url), 'utf8'));
+  const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
+  const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
+  const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   assert.ok(html.includes('© 2026 Chuanjin Su'));
   assert.ok(html.includes('href="https://github.com/chuanjin-su/pvt-diagram-3d"'));
   assert.ok(html.includes('rel="noopener noreferrer"'));
@@ -206,6 +206,5 @@ test('standalone project has author attribution, repository link, and root-relat
   assert.equal(pkg.scripts.start, 'python3 -m http.server 8000');
   assert.ok(html.includes('python3 -m http.server 8000 from the project root'));
   assert.ok(readme.includes('python3 -m http.server 8000\n'));
-  assert.ok(readme.includes('node --test model.test.mjs'));
-  assert.ok(readme.includes('node --experimental-vm-modules --test ui.test.mjs'));
+  assert.ok(readme.includes('npm test'));
 });

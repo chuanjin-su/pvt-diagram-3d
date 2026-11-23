@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as m from './model.mjs';
+import * as m from '../src/model.mjs';
 const near = (a, b, tolerance = 1e-9) => assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);
 const same = (a, b) => a.forEach((v, i) => near(v, b[i]));
 

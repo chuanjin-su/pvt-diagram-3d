@@ -11,6 +11,6 @@
   "type": "module",
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node --test model.test.mjs && node --experimental-vm-modules --test ui.test.mjs"
+    "test": "node --experimental-vm-modules --test tests/model.test.mjs tests/ui.test.mjs"
   }
 }
